@@ -6,7 +6,7 @@
 
 ![Loading](./image/aa.PNG)
 
-로딩 화면  
+첫 화면  
 
 ![Loading](./image/h.PNG)
 
