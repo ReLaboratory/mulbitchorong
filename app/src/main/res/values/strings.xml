@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">WaterFlower</string>
+    <string name="signUp">회원가입</string>
+    <string name="login">로그인</string>
+    <string name="pw">PW</string>
+    <string name="id">EMAIL</string>
+    <string name="sidebtn">sideBtn</string>
+    <string name="logo">logo</string>
+    <string name="setting">setting</string>
+    <string name="image_upload">image upload</string>
+    <string name="upbtn">게시하기</string>
+    <string name="named">이름을 작성하시오</string>
+    <string name="rechoice">사진 다시 선택</string>
+    <string name="logOut">로그아웃</string>
+    <string name="reserve">수정하기</string>
+    <string name="yourname">YourName</string>
+    <string name="down">다운</string>
+</resources>

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "937469369042",
+    "firebase_url": "https://waterlight-10fe7.firebaseio.com",
+    "project_id": "waterlight-10fe7",
+    "storage_bucket": "waterlight-10fe7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937469369042:android:2b6f049cd85fd58d20eb0b",
+        "android_client_info": {
+          "package_name": "com.repro.waterlight"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "937469369042-1dbl2vm6jjadrvi9u3d7ouc7v0dj1r05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmSnj81_YRNk-I1Ekiyxz31flCCF7ulZ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "937469369042-1dbl2vm6jjadrvi9u3d7ouc7v0dj1r05.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
