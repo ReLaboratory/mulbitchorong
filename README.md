@@ -4,4 +4,4 @@
 
 세부구성
 
-![이미지 설명(한마디로)](./assets/image/waterLight.png)
+![이미지 설명(한마디로)](/image/aa.png)
