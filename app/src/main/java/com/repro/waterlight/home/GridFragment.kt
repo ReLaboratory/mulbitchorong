@@ -15,7 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.repro.waterlight.R
 import com.repro.waterlight.file.ContentDTO
+import com.repro.waterlight.file.Down
 import kotlinx.android.synthetic.main.fragment_grid.view.*
+import org.jetbrains.anko.startActivity
 import java.util.*
 
 class GridFragment: Fragment() {
@@ -73,6 +75,13 @@ class GridFragment: Fragment() {
                 .load(ContentDTOS[position].imageuri)
                 .apply(RequestOptions().centerCrop())
                 .into(imageView)
+
+            imageView.setOnClickListener {
+                holder.itemView.context.startActivity<Down>(
+                    "time" to ContentDTOS[position].time,
+                    "uri" to ContentDTOS[position].imageuri
+                )
+            }
         }
 
         override fun getItemCount(): Int {

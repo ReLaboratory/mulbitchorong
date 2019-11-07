@@ -71,7 +71,7 @@ class UpLoad : AppCompatActivity() {
     private fun uploadFile() {
         //업로드할 파일이 있으면 수행
         if (filePath != null) {
-            val fileName = SimpleDateFormat("yyyyMMHH_mmss").format(Date())
+            val fileName = SimpleDateFormat("yyyyMMHH_mmss").format(Date()) + ".jpg"
             val storageRef = storage?.getReferenceFromUrl("gs://waterlight-10fe7.appspot.com")?.child("images")
                 ?.child(fileName)
             var uri: Uri?
@@ -90,7 +90,7 @@ class UpLoad : AppCompatActivity() {
                             content.imageuri = uri.toString()
                             content.uid = auth?.currentUser?.uid
                             content.userId = auth?.currentUser?.email
-                            content.time = fileName
+                            content.time = "$fileName.jpg"
 
                             data?.collection("images")?.document()?.set(content)
                             setResult(Activity.RESULT_OK)

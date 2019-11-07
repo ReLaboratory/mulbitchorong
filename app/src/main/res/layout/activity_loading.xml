@@ -16,13 +16,13 @@
         tools:layout_editor_absoluteY="-16dp" />
 
     <TextView
-        android:gravity="center"
-        android:textColor="#fff"
-        android:textSize="20sp"
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Icons made by Freepik from www.flaticon.com"
+        android:textColor="#fff"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

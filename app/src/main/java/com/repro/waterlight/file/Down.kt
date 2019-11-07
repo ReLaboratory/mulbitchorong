@@ -1,14 +1,19 @@
 package com.repro.waterlight.file
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.google.firebase.storage.FirebaseStorage
 import com.repro.waterlight.R
 import kotlinx.android.synthetic.main.activity_down.*
-import org.jetbrains.anko.toast
 
 class Down : AppCompatActivity() {
+    lateinit var firebaseStorage: FirebaseStorage
+    var name: String = ""
+    var uri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,14 +24,22 @@ class Down : AppCompatActivity() {
         ab?.setDisplayUseLogoEnabled(true)
         ab?.setDisplayShowHomeEnabled(true)
 
-        var uri: String? = Intent().getStringExtra("a")
-        if(uri != null) {
-            Glide.with(this).load(uri)
-                .into(downImageView)
-        }else{
-            toast("오류")
-            finish()
-        }
+        firebaseStorage = FirebaseStorage.getInstance()
 
+        val intent: Intent = intent
+        name = intent.getStringExtra("time")
+        val surl = intent.getStringExtra("uri")
+        uri = Uri.parse(surl)
+
+        Glide.with(this)
+            .load(surl)
+            .apply(RequestOptions().centerCrop())
+            .into(downImageView)
+
+        downButton.setOnClickListener {
+            val inten = Intent(Intent.ACTION_VIEW)
+            inten.data = uri
+            startActivity(inten)
+        }
     }
 }
