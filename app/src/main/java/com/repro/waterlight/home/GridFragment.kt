@@ -78,7 +78,6 @@ class GridFragment: Fragment() {
 
             imageView.setOnClickListener {
                 holder.itemView.context.startActivity<Down>(
-                    "time" to ContentDTOS[position].time,
                     "uri" to ContentDTOS[position].imageuri
                 )
             }

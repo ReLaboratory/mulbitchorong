@@ -6,13 +6,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.firebase.storage.FirebaseStorage
 import com.repro.waterlight.R
 import kotlinx.android.synthetic.main.activity_down.*
 
 class Down : AppCompatActivity() {
-    lateinit var firebaseStorage: FirebaseStorage
-    var name: String = ""
     var uri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,10 +21,7 @@ class Down : AppCompatActivity() {
         ab?.setDisplayUseLogoEnabled(true)
         ab?.setDisplayShowHomeEnabled(true)
 
-        firebaseStorage = FirebaseStorage.getInstance()
-
         val intent: Intent = intent
-        name = intent.getStringExtra("time")
         val surl = intent.getStringExtra("uri")
         uri = Uri.parse(surl)
 
