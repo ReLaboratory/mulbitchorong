@@ -1,34 +1,31 @@
 package com.repro.waterlight.information
 
-import android.annotation.SuppressLint
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Patterns
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.repro.waterlight.R
-import com.repro.waterlight.file.UserDTO
+import com.repro.waterlight.file.SignupSuccess
+import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_signup.*
 import org.jetbrains.anko.toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.InputStream
 import java.util.regex.Pattern
 
 class Signup : AppCompatActivity() {
-    private var auth: FirebaseAuth? = null
-
-    private var email = ""
+    private var id = ""
     private var password = ""
     private var passWordPattern: Pattern = Pattern.compile("^[a-zA-Z0-9!@.#$%^&*?_~]{4,16}$")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
-
-        auth = FirebaseAuth.getInstance()
 
         val am: AssetManager = resources.assets
         val iss: InputStream = am.open("infor.png")
@@ -41,14 +38,14 @@ class Signup : AppCompatActivity() {
         name.background.setColorFilter(resources.getColor(R.color.water), PorterDuff.Mode.SRC_ATOP)
 
         signupNextBtn.setOnClickListener {
-            email = SignUpEmail.text.toString()
+            id = SignUpEmail.text.toString()
             password = SignUpPw.text.toString()
             val conPw = SignUpConfirmPw.text.toString()
 
             if(isValidEmail() && isValidPasswd()) {
                 if (password == conPw){
                     if (name.text.toString() != ""){
-                        createUser(email, password)
+                        createUser()
                     }else{
                         toast("이름을 작성해주시기 바랍니다.")
                     }
@@ -56,15 +53,13 @@ class Signup : AppCompatActivity() {
                     toast("비밀번호가 다릅니다.")
                 }
             }else{
-                toast("이메일 또는 비밀번호에서 오류가 생겼습니다.(비밀번호 8자리 이상)")
+                toast("이메일 또는 비밀번호에서 오류가 생겼습니다.(비밀번호 4자리 이상)")
             }
         }
     }
 
     private fun isValidEmail(): Boolean {
-        return if (email.isEmpty()) {
-            false
-        } else Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        return id.isNotEmpty()
     }
 
     private fun isValidPasswd(): Boolean {
@@ -73,21 +68,31 @@ class Signup : AppCompatActivity() {
         } else passWordPattern.matcher(password).matches()
     }
 
-    @SuppressLint("CommitPrefEdits")
-    private fun createUser(email: String, password: String) {
-        auth?.createUserWithEmailAndPassword(email, password)
-            ?.addOnCompleteListener(this) { p0 ->
-            if (p0.isSuccessful) {
-                val fire: FirebaseFirestore = FirebaseFirestore.getInstance()
-                val user = UserDTO(email, name.text.toString(), null, password)
+    private fun createUser() {
+        val requestBody: Map<String, String> = hashMapOf("uid" to id, "pw" to password, "uname" to name.text.toString())
 
-                fire.collection("users").document(email).set(user)
+        val call = retro.getClient.postSignup(requestBody)
+        call.enqueue(object : Callback<SignupSuccess> {
+            override fun onResponse(call: Call<SignupSuccess>?, response: Response<SignupSuccess>?) {
+                Log.d("signup", "success")
+                Log.d("signup", response?.body().toString())
+                if(response?.isSuccessful!!){
+                    Log.d("signup", response.code().toString())
+                    Log.d("signup", response.body()?.uname)
+                    Log.d("signup", response.body()?.isSuccess.toString())
 
-                toast("회원가입 성공")
-                finish()
-            } else {
-                toast("오류가 발생하였습니다. 다시 시도 하시길 바랍니다.")
+                    if(response.body()?.isSuccess!!){
+                        toast("환영합니다 ${response.body()?.uname}님")
+                        finish()
+                    }else{
+                        toast("오류가 발생했습니다. 앱을 다시 실행시켜주십시오")
+                    }
+                }
             }
-        }
+            override fun onFailure(call: Call<SignupSuccess>?, t: Throwable?) {
+                Log.e("signup", "fail")
+                toast("오류가 발생했습니다. 앱을 다시 실행시켜주십시오")
+            }
+        })
     }
 }

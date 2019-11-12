@@ -48,7 +48,7 @@ class Loading : AppCompatActivity() {
                         FirebaseFirestore.getInstance().collection("users").document(email!!)
                     docRef.get().addOnSuccessListener { documentSnapshot ->
                         val city = documentSnapshot.toObject(UserDTO::class.java)
-                        auth.signInWithEmailAndPassword(city?.email!!, city.pw!!)
+                        auth.signInWithEmailAndPassword(city?.id!!, city.pw!!)
                             .addOnCompleteListener(this) { task ->
                                 if (task.isSuccessful) {
                                     startActivity<Home>(
