@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.repro.waterlight.R
-import com.repro.waterlight.file.SignupSuccess
+import com.repro.waterlight.file.SignSuccess
 import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_signup.*
 import org.jetbrains.anko.toast
@@ -72,8 +72,8 @@ class Signup : AppCompatActivity() {
         val requestBody: Map<String, String> = hashMapOf("uid" to id, "pw" to password, "uname" to name.text.toString())
 
         val call = retro.getClient.postSignup(requestBody)
-        call.enqueue(object : Callback<SignupSuccess> {
-            override fun onResponse(call: Call<SignupSuccess>?, response: Response<SignupSuccess>?) {
+        call.enqueue(object : Callback<SignSuccess> {
+            override fun onResponse(call: Call<SignSuccess>?, response: Response<SignSuccess>?) {
                 Log.d("signup", "success")
                 Log.d("signup", response?.body().toString())
                 if(response?.isSuccessful!!){
@@ -89,8 +89,11 @@ class Signup : AppCompatActivity() {
                     }
                 }
             }
-            override fun onFailure(call: Call<SignupSuccess>?, t: Throwable?) {
+            override fun onFailure(call: Call<SignSuccess>?, t: Throwable?) {
                 Log.e("signup", "fail")
+                Log.e("signup", requestBody.toString())
+                Log.e("signup", t.toString())
+                Log.e("signup", call.toString())
                 toast("오류가 발생했습니다. 앱을 다시 실행시켜주십시오")
             }
         })

@@ -7,10 +7,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.repro.waterlight.R
-import com.repro.waterlight.file.UserDTO
 import com.repro.waterlight.home.Home
 import kotlinx.android.synthetic.main.activity_loading.*
 import org.jetbrains.anko.startActivity
@@ -38,30 +35,13 @@ class Loading : AppCompatActivity() {
         handler.postDelayed({
             val sign = getSharedPreferences("savesign", Activity.MODE_PRIVATE)
             val sa: Boolean? = sign.getBoolean("key", false)
-            if (sa!!) {
-                val save = getSharedPreferences("saveLogin", Activity.MODE_PRIVATE)
-                val email: String? = save.getString("keyE", "")
-                val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-                if (email != "") {
-                    val docRef =
-                        FirebaseFirestore.getInstance().collection("users").document(email!!)
-                    docRef.get().addOnSuccessListener { documentSnapshot ->
-                        val city = documentSnapshot.toObject(UserDTO::class.java)
-                        auth.signInWithEmailAndPassword(city?.id!!, city.pw!!)
-                            .addOnCompleteListener(this) { task ->
-                                if (task.isSuccessful) {
-                                    startActivity<Home>(
-                                        "check" to true
-                                    )
-                                    finish()
-                                }
-                            }
-                    }
-                } else {
-                    startActivity<MainActivity>()
-                    finish()
-                }
+            val id: String? = sign.getString("id", "")
+            if (sa!! && !id.isNullOrEmpty()) {
+                 startActivity<Home>(
+                     "check" to true,
+                     "id" to id
+                 )
+                finish()
             }else{
                 startActivity<MainActivity>()
                 finish()

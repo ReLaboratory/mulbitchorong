@@ -6,24 +6,24 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Patterns
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 import com.repro.waterlight.R
+import com.repro.waterlight.file.SignSuccess
 import com.repro.waterlight.home.Home
 import com.repro.waterlight.main.MainActivity
+import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.InputStream
-import java.util.regex.Pattern
 
 class Login : AppCompatActivity() {
-    private var auth: FirebaseAuth? = null
-
-    private var email = ""
+    private var id = ""
     private var password = ""
-    private var passWordPattern: Pattern = Pattern.compile("^[a-zA-Z0-9!@.#$%^&*?_~]{4,16}$")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,52 +37,59 @@ class Login : AppCompatActivity() {
         loginEmail.background.setColorFilter(resources.getColor(R.color.water), PorterDuff.Mode.SRC_ATOP)
         loginPw.background.setColorFilter(resources.getColor(R.color.water), PorterDuff.Mode.SRC_ATOP)
 
-        auth = FirebaseAuth.getInstance()
-
         loginNextBtn.setOnClickListener {
-            email = loginEmail.text.toString()
+            id = loginEmail.text.toString()
             password = loginPw.text.toString()
             if(isValidEmail() && isValidPasswd()) {
-                signInWithEmailAndPassword(email, password)
+                signInWithEmailAndPassword()
             }else{
                 toast("입력이 잘못되었습니다.")
             }
         }
-
-        forgot.setOnClickListener {
-            startActivity<Signup>()
-            finish()
-        }
     }
 
     private fun isValidEmail(): Boolean {
-        return if (email.isEmpty()) {
-            false
-        } else Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        return id.isNotEmpty()
     }
 
     private fun isValidPasswd(): Boolean {
-        return if (password.isEmpty()) {
-            false
-        } else passWordPattern.matcher(password).matches()
+        return password.isNotEmpty()
     }
 
-    private fun signInWithEmailAndPassword(email: String, password: String){
-        auth?.signInWithEmailAndPassword(email, password)
-            ?.addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val save = getSharedPreferences("savesign", Activity.MODE_PRIVATE).edit()
-                    save.putBoolean("key", true)
-                    save.apply()
-                    toast("로그인 성공")
-                    startActivity<Home>(
-                        "check" to true
-                    )
-                    finish()
-                } else {
-                    toast("로그인 실패하셨습니다. 다시 확인해주시길 바랍니다.")
+    private fun signInWithEmailAndPassword(){
+        val requestBody: Map<String, String> = hashMapOf("uid" to id, "pw" to password)
+
+        val call = retro.getClient.postLogin(requestBody)
+        call.enqueue(object : Callback<SignSuccess> {
+            override fun onResponse(call: Call<SignSuccess>?, response: Response<SignSuccess>?) {
+                Log.d("signin", "success")
+                Log.d("signin", response?.body().toString())
+                if(response?.isSuccessful!!){
+                    Log.d("signin", response.code().toString())
+                    Log.d("signin", response.body()?.uname)
+                    Log.d("signin", response.body()?.isSuccess.toString())
+
+                    if(response.body()?.isSuccess!!){
+                        val save = getSharedPreferences("savesign", Activity.MODE_PRIVATE).edit()
+                        save.putBoolean("key", response.body()!!.isSuccess!!)
+                        save.putString("id", id)
+                        save.apply()
+                        toast("로그인 성공")
+                        startActivity<Home>(
+                            "check" to true,
+                            "name" to response.body()!!.uname
+                        )
+                        finish()
+                    }else{
+                        toast("오류가 발생했습니다. 앱을 다시 실행시켜주십시오")
+                    }
                 }
             }
+            override fun onFailure(call: Call<SignSuccess>?, t: Throwable?) {
+                Log.e("signin", "fail")
+                toast("로그인 실패하셨습니다. 다시 확인해주시길 바랍니다.")
+            }
+        })
     }
 
     override fun onBackPressed() {
