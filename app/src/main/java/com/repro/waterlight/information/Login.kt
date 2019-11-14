@@ -77,7 +77,7 @@ class Login : AppCompatActivity() {
                         toast("로그인 성공")
                         startActivity<Home>(
                             "check" to true,
-                            "name" to response.body()!!.uname
+                            "id" to id
                         )
                         finish()
                     }else{

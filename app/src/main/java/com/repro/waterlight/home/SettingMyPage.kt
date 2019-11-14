@@ -7,23 +7,15 @@ import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.gms.tasks.Continuation
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.UploadTask
 import com.repro.waterlight.R
-import com.repro.waterlight.file.UserDTO
 import kotlinx.android.synthetic.main.activity_setting_my_page.*
-import org.jetbrains.anko.toast
 
 class SettingMyPage : AppCompatActivity() {
     private val checkNum = 0
     private var filePath: Uri? = null
-    private var store: FirebaseFirestore? = null
-    private var auth: FirebaseAuth? = null
-    private var storage: FirebaseStorage? = null
+//    private var store: FirebaseFirestore? = null
+//    private var auth: FirebaseAuth? = null
+//    private var storage: FirebaseStorage? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +27,14 @@ class SettingMyPage : AppCompatActivity() {
         ab?.setDisplayUseLogoEnabled(true)
         ab?.setDisplayShowHomeEnabled(true)
 
-        store = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
-        storage = FirebaseStorage.getInstance()
-        val docRef = store!!.collection("users").document(auth!!.currentUser?.email.toString())
-        docRef.get().addOnSuccessListener { documentSnapshot ->
-            val city = documentSnapshot.toObject(UserDTO::class.java)
-            myName.hint = city?.name
-        }
+//        store = FirebaseFirestore.getInstance()
+//        auth = FirebaseAuth.getInstance()
+//        storage = FirebaseStorage.getInstance()
+//        val docRef = store!!.collection("users").document(auth!!.currentUser?.email.toString())
+//        docRef.get().addOnSuccessListener { documentSnapshot ->
+//            val city = documentSnapshot.toObject(UserDTO::class.java)
+//            myName.hint = city?.name
+//        }
 
         myImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
@@ -70,38 +62,38 @@ class SettingMyPage : AppCompatActivity() {
     }
 
     private fun setting() {
-        val docRef = store!!.collection("users").document(auth!!.currentUser?.email.toString())
-        docRef.get().addOnSuccessListener { documentSnapshot ->
-            val city = documentSnapshot.toObject(UserDTO::class.java)
-            if(myName.text.toString() == "" || filePath == null){
-                toast("다시 설정해주시길 바랍니다")
-            }else {
-                if (filePath != null) {
-                    val storageRef = storage?.getReferenceFromUrl("gs://waterlight-10fe7.appspot.com")?.child("users")
-                        ?.child(auth!!.currentUser?.email.toString())
-                    var uri: Uri?
-
-                    storageRef!!.putFile(filePath!!)
-                        .addOnSuccessListener {
-                            val uploadTask = storageRef.putFile(filePath!!)
-                            uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
-                                return@Continuation storageRef.downloadUrl
-                            }).addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    uri = task.result
-                                    city?.name = myName.text.toString()
-                                    city?.profiluri = uri.toString()
-
-                                    val fire: FirebaseFirestore = FirebaseFirestore.getInstance()
-                                    fire.collection("users").document(auth!!.currentUser?.email.toString()).set(city!!)
-                                }
-                            }
-                        }
-                        .addOnFailureListener { toast("수정 실패") }
-                        .addOnProgressListener { toast("잠시만 기다려 주십시오") }
-                }
-            }
-        }
-        finish()
+//        val docRef = store!!.collection("users").document(auth!!.currentUser?.email.toString())
+//        docRef.get().addOnSuccessListener { documentSnapshot ->
+//            val city = documentSnapshot.toObject(UserDTO::class.java)
+//            if(myName.text.toString() == "" || filePath == null){
+//                toast("다시 설정해주시길 바랍니다")
+//            }else {
+//                if (filePath != null) {
+//                    val storageRef = storage?.getReferenceFromUrl("gs://waterlight-10fe7.appspot.com")?.child("users")
+//                        ?.child(auth!!.currentUser?.email.toString())
+//                    var uri: Uri?
+//
+//                    storageRef!!.putFile(filePath!!)
+//                        .addOnSuccessListener {
+//                            val uploadTask = storageRef.putFile(filePath!!)
+//                            uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
+//                                return@Continuation storageRef.downloadUrl
+//                            }).addOnCompleteListener { task ->
+//                                if (task.isSuccessful) {
+//                                    uri = task.result
+//                                    city?.name = myName.text.toString()
+//                                    city?.profiluri = uri.toString()
+//
+//                                    val fire: FirebaseFirestore = FirebaseFirestore.getInstance()
+//                                    fire.collection("users").document(auth!!.currentUser?.email.toString()).set(city!!)
+//                                }
+//                            }
+//                        }
+//                        .addOnFailureListener { toast("수정 실패") }
+//                        .addOnProgressListener { toast("잠시만 기다려 주십시오") }
+//                }
+//            }
+//        }
+//        finish()
     }
 }

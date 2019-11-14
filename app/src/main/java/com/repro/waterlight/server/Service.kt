@@ -14,5 +14,16 @@ interface Service {
     fun postLogin(@Body body: Map<String, String>): Call<SignSuccess>
 
     @GET("/api/account/uname/{id}")
-    fun GetUserName(@Path("Id") ID: String): Call<String>
+    fun GetUserName(@Path("id") ID: String): Call<String>
+
+//    @Multipart
+//    @POST("/api/img/upload")
+//    fun Upload(@Part File: MultipartBody.Part): Call<Result>
+//
+//    @GET("/api/account/profile/:{id}")
+//    fun GetProfileImg(@Path("id") ID: String): Call<String>
+//
+//    @Headers("Content-Type: application/json")
+//    @POST("/api/account/profile")
+//    fun RegisterProfile(@Body body: Map<String, String>): Call<SignSuccess>
 }
