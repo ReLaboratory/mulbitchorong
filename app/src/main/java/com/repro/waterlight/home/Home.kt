@@ -8,9 +8,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.repro.waterlight.R
+import com.repro.waterlight.file.GetName
 import com.repro.waterlight.file.UpLoad
 import com.repro.waterlight.main.MainActivity
 import com.repro.waterlight.server.retro
@@ -40,22 +40,25 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         homeSideMenu.setNavigationItemSelectedListener(this)
         check = intent.getBooleanExtra("check", false)
         id = intent.getStringExtra("id")
-        val call = retro.getClient.GetUserName(id)
-        call.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>?, response: Response<String>?) {
-                Log.d("signup", "success")
-                Log.d("signup", response?.body().toString())
+        val callName = retro.getClient.GetUserName(id)
+        callName.enqueue(object : Callback<GetName> {
+            override fun onResponse(call: Call<GetName>?, response: Response<GetName>?) {
+                Log.d("Home", "success")
+                Log.d("Home", response?.body().toString())
                 if(response?.isSuccessful!!){
-                    Log.d("signup", response.code().toString())
-                    Log.d("signup", response.body().toString())
-                    name.text = response.body().toString()
+                    Log.d("Home", response.code().toString())
+                    Log.d("Home", response.body().toString())
+                    name.text = response.body()?.uname
                 }
             }
-            override fun onFailure(call: Call<String>?, t: Throwable?) {
-                Log.e("signup", "fail")
+            override fun onFailure(call: Call<GetName>?, t: Throwable?) {
+                Log.e("Home", "fail")
+                Log.e("Home", t.toString())
                 name.text = "YOUR NAME"
             }
         })
+
+
 
         //프로필
 //        if(city?.profiluri != null){
@@ -63,7 +66,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 //                .apply(RequestOptions.circleCropTransform())
 //                .into(profile)
 //        }else{
-            Glide.with(this).load(R.mipmap.user_foreground).into(profile)
+//            Glide.with(this).load(R.mipmap.user_foreground).into(profile)
 //        }
 
 //        storage = FirebaseStorage.getInstance()
@@ -99,7 +102,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     //바디
-    @SuppressLint("CommitPrefEdits")
+    @SuppressLint("CommitPrefEdits", "LongLogTag")
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
         if (this.check!!) {
             when (p0.itemId) {
@@ -107,7 +110,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     startActivity<SettingMyPage>()
                 }
                 R.id.fileUpLoad -> {
-                    startActivity<UpLoad>()
+                    Log.e("[[[[[[[[[[[[[[[[[[[[[[[[[[[[", id)
+                    startActivity<UpLoad>(
+                        "aaa" to id
+                    )
                 }
                 R.id.logOut -> {
                     val save = getSharedPreferences("savesign", Activity.MODE_PRIVATE).edit()

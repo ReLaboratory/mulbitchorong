@@ -6,17 +6,25 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.repro.waterlight.R
+import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_up_load.*
 import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.jetbrains.anko.toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 class UpLoad : AppCompatActivity() {
     private val checkNum = 0
     private var filePath: Uri? = null
+    var id: String = ""
+    var name: String = ""
 //    private var storage: FirebaseStorage? = null
 //    private var data: FirebaseFirestore? = null
 //    private var auth: FirebaseAuth? = null
@@ -31,10 +39,7 @@ class UpLoad : AppCompatActivity() {
         ab?.setDisplayUseLogoEnabled(true)
         ab?.setDisplayShowHomeEnabled(true)
 
-//        //파이어베이스 설정
-//        storage = FirebaseStorage.getInstance()
-//        data = FirebaseFirestore.getInstance()
-//        auth = FirebaseAuth.getInstance()
+        id = intent.getStringExtra("aaa")
 
         //이미지 선택
         val intent = Intent(Intent.ACTION_PICK)
@@ -42,6 +47,7 @@ class UpLoad : AppCompatActivity() {
         startActivityForResult(intent, checkNum)
 
         fileUpBtn.setOnClickListener {
+            name = imageName.text.toString()
             uploadFile()
         }
         reChoiceBtn.setOnClickListener {
@@ -65,36 +71,8 @@ class UpLoad : AppCompatActivity() {
     private fun uploadFile() {
         //업로드할 파일이 있으면 수행
         if (filePath != null) {
-//            val storageRef = storage?.getReferenceFromUrl("gs://waterlight-10fe7.appspot.com")?.child("images")
-//                ?.child(fileName)
-
             val fileUri: String =  getRealPathFromURIPath(filePath!!)
             uploadToServer(fileUri)
-
-//            storageRef!!.putFile(filePath!!)
-//                .addOnSuccessListener {
-//                    val uploadTask = storageRef.putFile(filePath!!)
-//                    uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> {
-//                        return@Continuation storageRef.downloadUrl
-//                    }).addOnCompleteListener { task ->
-//                        if (task.isSuccessful) {
-//                            uri = task.result
-//
-//                            val content = ContentDTO()
-//
-//                            content.imageuri = uri.toString()
-//                            content.userId = auth?.currentUser?.email
-//                            content.time = SimpleDateFormat("yyyyMMHH_mmss").format(Date())
-//                            content.name = fileName
-//
-//                            data?.collection("images")?.document()?.set(content)
-//                            setResult(Activity.RESULT_OK)
-//                            finish()
-//                            toast("앱을 다시 실행시키면 적용됩니다.")
-//                        }
-//                    }
-//                }
-//                .addOnFailureListener { toast("업로드 실패") }
         }else{
             toast("파일을 선택해 주시기 바랍니다.")
         }
@@ -114,14 +92,22 @@ class UpLoad : AppCompatActivity() {
 
     private fun uploadToServer(fileURI: String) {
         val file = File(fileURI)
-        val requestFile: RequestBody = RequestBody.create(MediaType.parse("image/*"), file)
-//        val part = MultipartBody.Part.createFormData(imageName.text.toString(), file.name, requestFile)
-//            val call = retro.getClient.uploadImage(part)
-//            call.enqueue(object : Callback<SignSuccess> {
-//                override fun onResponse(call: Call<SignSuccess>?, response: Response<SignSuccess>?) {
-//                }
-//                override fun onFailure(call: Call<SignSuccess>?, t: Throwable?) {
-//                }
-//            })
+        val requestFile: RequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        val multipartBody: MultipartBody.Part = MultipartBody.Part.createFormData("files", file.name, requestFile)
+        val requestBody: Map<String, String> = hashMapOf("uid" to id, "imgName" to name)
+
+        Log.e("upload", "$requestBody | $file | $fileURI | $requestFile | $multipartBody ${requestFile.contentType().toString()}")
+        Log.e("upload", "${requestBody["imgName"]} | ${requestBody["uid"]}")
+
+        val call = retro.getClient.Upload(multipartBody, requestBody)
+        call.enqueue(object : Callback<UploadSuccess> {
+            override fun onFailure(call: Call<UploadSuccess>, t: Throwable) {
+                Log.e("upload", t.toString())
+                Log.e("upload", t.cause.toString())
+            }
+            override fun onResponse(call: Call<UploadSuccess>, response: Response<UploadSuccess>) {
+                Log.e("upload", response.isSuccessful.toString())
+            }
+        })
     }
 }
