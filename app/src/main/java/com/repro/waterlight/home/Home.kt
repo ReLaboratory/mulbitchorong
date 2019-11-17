@@ -2,20 +2,26 @@ package com.repro.waterlight.home
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.repro.waterlight.R
 import com.repro.waterlight.file.GetName
+import com.repro.waterlight.file.GetimgNames
+import com.repro.waterlight.file.Getimgs
 import com.repro.waterlight.file.UpLoad
 import com.repro.waterlight.main.MainActivity
 import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.header.*
+import okhttp3.ResponseBody
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import retrofit2.Call
@@ -25,6 +31,8 @@ import retrofit2.Response
 class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var check: Boolean? = null
     private var id: String = ""
+    private var imgNames: ArrayList<GetimgNames> = ArrayList()
+    private var imgs: ArrayList<Bitmap> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,36 +51,68 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val callName = retro.getClient.GetUserName(id)
         callName.enqueue(object : Callback<GetName> {
             override fun onResponse(call: Call<GetName>?, response: Response<GetName>?) {
-                Log.d("Home", "success")
-                Log.d("Home", response?.body().toString())
+                Log.e("Home1", "success")
+                Log.e("Home1", response?.body().toString())
                 if(response?.isSuccessful!!){
-                    Log.d("Home", response.code().toString())
-                    Log.d("Home", response.body().toString())
-                    name.text = response.body()?.uname
+                    Log.e("Home1", response.code().toString())
+                    Log.e("Home1", response.body().toString())
+                    if(response.body()?.uname != null)
+                        name.text = response.body()?.uname
                 }
             }
             override fun onFailure(call: Call<GetName>?, t: Throwable?) {
-                Log.e("Home", "fail")
-                Log.e("Home", t.toString())
+                Log.e("Home1", "fail")
+                Log.e("Home1", t.toString())
                 name.text = "YOUR NAME"
             }
         })
 
+        //모든 이미지 이름 가져옴
+        val callImgName = retro.getClient.GetImgNames()
+        callImgName.enqueue(object : Callback<ArrayList<GetimgNames>> {
+            override fun onResponse(call: Call<ArrayList<GetimgNames>>?, response: Response<ArrayList<GetimgNames>>?) {
+                Log.e("Home2", "success")
+                Log.e("Home2", response?.body().toString())
+                imgNames = response?.body()!!
 
+                for (i in imgNames) {
+                    val callImgs = retro.getClient.GetImage(i.imgName)
+                    callImgs.enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                            Log.e("Home3", "success")
+                            Log.e("Home3", response?.body().toString())
+                            Log.e("Home3", response?.body()?.byteStream().toString())
+                            imgs.add(BitmapFactory.decodeStream(response?.body()?.byteStream()))
+                        }
+                        override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                            Log.e("Home3", "fail")
+                            Log.e("Home3", t.toString())
+                        }
+                    })
+                }
+            }
 
-        //프로필
-//        if(city?.profiluri != null){
-//            Glide.with(this).load(city.profiluri)
-//                .apply(RequestOptions.circleCropTransform())
-//                .into(profile)
-//        }else{
-//            Glide.with(this).load(R.mipmap.user_foreground).into(profile)
-//        }
+            override fun onFailure(call: Call<ArrayList<GetimgNames>>, t: Throwable) {
+                Log.e("Home2", "fail")
+                Log.e("Home2", t.toString())
+            }
+        })
 
-//        storage = FirebaseStorage.getInstance()
-//        mStorageRef = storage!!.getReferenceFromUrl("gs://waterlight-10fe7.appspot.com/").child("수정/y")
-//        store = FirebaseFirestore.getInstance()
-//        auth = FirebaseAuth.getInstance()
+        //프로필 가져옴
+        val callProfile = retro.getClient.GetProfileImg(id)
+        callProfile.enqueue(object : Callback<Getimgs> {
+            override fun onResponse(call: Call<Getimgs>?, response: Response<Getimgs>?) {
+                Log.e("Pro1", "success")
+                Log.e("Pro1", response?.body().toString())
+                if(response?.body() != null) {
+                    Glide.with(this@Home).load(response?.body()).into(profile)
+                }
+            }
+            override fun onFailure(call: Call<Getimgs>?, t: Throwable?) {
+                Log.e("Pro1", "fail")
+                Log.e("Pro1", t.toString())
+            }
+        })
 
         //사진 가져오기
         val gridFragment = GridFragment()
@@ -110,7 +150,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     startActivity<SettingMyPage>()
                 }
                 R.id.fileUpLoad -> {
-                    Log.e("[[[[[[[[[[[[[[[[[[[[[[[[[[[[", id)
                     startActivity<UpLoad>(
                         "aaa" to id
                     )

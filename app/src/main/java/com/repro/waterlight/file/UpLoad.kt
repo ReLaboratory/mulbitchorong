@@ -25,9 +25,6 @@ class UpLoad : AppCompatActivity() {
     private var filePath: Uri? = null
     var id: String = ""
     var name: String = ""
-//    private var storage: FirebaseStorage? = null
-//    private var data: FirebaseFirestore? = null
-//    private var auth: FirebaseAuth? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +104,9 @@ class UpLoad : AppCompatActivity() {
             }
             override fun onResponse(call: Call<UploadSuccess>, response: Response<UploadSuccess>) {
                 Log.e("upload", response.isSuccessful.toString())
+                if(response.body()?.isSuccess!!){
+                    finish()
+                }
             }
         })
     }
