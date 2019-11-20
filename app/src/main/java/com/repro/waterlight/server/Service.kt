@@ -1,6 +1,9 @@
 package com.repro.waterlight.server
 
-import com.repro.waterlight.file.*
+import com.repro.waterlight.file.GetName
+import com.repro.waterlight.file.GetimgNames
+import com.repro.waterlight.file.SignSuccess
+import com.repro.waterlight.file.UploadSuccess
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -28,11 +31,18 @@ interface Service {
     @GET("/api/img/upload-file/{filename}")
     fun GetImage(@Path("filename") fileName: String?): Call<ResponseBody>
 
-    //
-    @GET("/api/account/profile/:{id}")
-    fun GetProfileImg(@Path("id") ID: String): Call<Getimgs>
+    //프로필 가져옴
+    @GET("/api/account/profile/{id}")
+    fun GetProfileImg(@Path("id") ID: String): Call<ResponseBody>
 
-    @Headers("Content-Type: application/json")
-    @POST("/api/account/profile")
-    fun RegisterProfile(@Body body: Map<String, String>): Call<UploadSuccess>
+    @Multipart
+    @POST("/api/account/profile")   //프로필 등록
+    fun PostRegisterProfile(@Part file: MultipartBody.Part, @PartMap hash: Map<String, String>): Call<UploadSuccess>
+
+    @Multipart
+    @PUT("api/account/profile")     //프로필 수정
+    fun PutRegisterProfile(@Part file: MultipartBody.Part, @PartMap hash: Map<String, String>): Call<UploadSuccess>
+
+    @GET("api/account/profile-registered/{id}") //프로필 등록 여부
+    fun GetProfileRegistered(@Path("id") ID: String): Call<UploadSuccess>
 }

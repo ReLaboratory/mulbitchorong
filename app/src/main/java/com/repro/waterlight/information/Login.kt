@@ -87,6 +87,7 @@ class Login : AppCompatActivity() {
             }
             override fun onFailure(call: Call<SignSuccess>?, t: Throwable?) {
                 Log.e("signin", "fail")
+                Log.e("signin", t.toString())
                 toast("로그인 실패하셨습니다. 다시 확인해주시길 바랍니다.")
             }
         })

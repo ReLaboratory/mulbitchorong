@@ -15,10 +15,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.repro.waterlight.R
+import com.repro.waterlight.file.Down
 import com.repro.waterlight.file.GetimgNames
 import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.fragment_grid.view.*
 import okhttp3.ResponseBody
+import org.jetbrains.anko.startActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -71,7 +73,6 @@ class GridFragment: Fragment() {
                         })
                     }
                 }
-
                 override fun onFailure(call: Call<ArrayList<GetimgNames>>, t: Throwable) {
                     Log.e("Home2", "fail")
                     Log.e("Home2", t.toString())
@@ -115,17 +116,16 @@ class GridFragment: Fragment() {
 //                .load(ContentDTOS[position].imageuri)
 //                .apply(RequestOptions().centerCrop())
 //                .into(imageView)
-//
-//            imageView.setOnClickListener {
-//                holder.itemView.context.startActivity<Down>(
-//                    "uri" to ContentDTOS[position].imageuri
-//                )
-//            }
+
+            imageView.setOnClickListener {
+                holder.itemView.context.startActivity<Down>()
+            }
         }
 
         //yes
         override fun getItemCount(): Int {
 //            return ContentDTOS.size
+            Log.e("git", imgs.size.toString())
             return imgs.size
         }
 
