@@ -9,11 +9,13 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.repro.waterlight.R
+import com.repro.waterlight.home.Home
 import com.repro.waterlight.server.retro
 import kotlinx.android.synthetic.main.activity_up_load.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import retrofit2.Call
 import retrofit2.Callback
@@ -105,9 +107,22 @@ class UpLoad : AppCompatActivity() {
             override fun onResponse(call: Call<UploadSuccess>, response: Response<UploadSuccess>) {
                 Log.e("upload", response.isSuccessful.toString())
                 if(response.body()?.isSuccess!!){
+                    startActivity<Home>(
+                        "check" to true,
+                        "id" to id
+                    )
                     finish()
                 }
             }
         })
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity<Home>(
+            "check" to true,
+            "id" to id
+        )
+        finish()
     }
 }

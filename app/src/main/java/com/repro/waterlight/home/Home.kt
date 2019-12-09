@@ -15,6 +15,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.navigation.NavigationView
 import com.repro.waterlight.R
 import com.repro.waterlight.file.GetName
+import com.repro.waterlight.file.GetimgNames
 import com.repro.waterlight.file.UpLoad
 import com.repro.waterlight.main.MainActivity
 import com.repro.waterlight.server.retro
@@ -30,8 +31,9 @@ import retrofit2.Response
 class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var check: Boolean? = null
     private var id: String = ""
-//    private var imgNames: ArrayList<GetimgNames> = ArrayList()
-//    private var imgs: ArrayList<Bitmap> = ArrayList()
+    private var imgNames: ArrayList<GetimgNames> = ArrayList()
+    private var imgs: ArrayList<Bitmap> = ArrayList()
+    private var imm = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +57,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 if(response?.isSuccessful!!){
                     Log.e("Home1", response.code().toString())
                     Log.e("Home1", response.body().toString())
-                    if(response.body()?.uname != null)
-                        name.text = response.body()?.uname
+                    if(response.body()?.uname != null && response.body() != null && response.body()!!.uname != "") {
+                        name.text = response.body()!!.uname
+                    }
                 }
             }
             override fun onFailure(call: Call<GetName>?, t: Throwable?) {
@@ -67,35 +70,51 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         })
 
         //모든 이미지 이름 가져옴
-//        val callImgName = retro.getClient.GetImgNames()
-//        callImgName.enqueue(object : Callback<ArrayList<GetimgNames>> {
-//            override fun onResponse(call: Call<ArrayList<GetimgNames>>?, response: Response<ArrayList<GetimgNames>>?) {
-//                Log.e("Home2", "success")
-//                Log.e("Home2", response?.body().toString())
-//                imgNames = response?.body()!!
-//
-//                for (i in imgNames) {
-//                    val callImgs = retro.getClient.GetImage(i.imgName)
-//                    callImgs.enqueue(object : Callback<ResponseBody> {
-//                        override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-//                            Log.e("Home3", "success")
-//                            Log.e("Home3", response?.body().toString())
-//                            Log.e("Home3", response?.body()?.byteStream().toString())
-//                            imgs.add(BitmapFactory.decodeStream(response?.body()?.byteStream()))
-//                        }
-//                        override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-//                            Log.e("Home3", "fail")
-//                            Log.e("Home3", t.toString())
-//                        }
-//                    })
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<ArrayList<GetimgNames>>, t: Throwable) {
-//                Log.e("Home2", "fail")
-//                Log.e("Home2", t.toString())
-//            }
-//        })
+        val callImgName = retro.getClient.GetImgNames()
+        callImgName.enqueue(object : Callback<ArrayList<GetimgNames>> {
+            override fun onResponse(call: Call<ArrayList<GetimgNames>>?, response: Response<ArrayList<GetimgNames>>?) {
+                Log.e("Home2", "success")
+                Log.e("Home2", response?.body().toString())
+                imgNames = response?.body()!!
+
+                for (i in imgNames) {
+                    imm++
+                    val callImgs = retro.getClient.GetImage(i.imgName)
+                    callImgs.enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                            Log.e("Home3", "success")
+                            Log.e("Home3", response?.body().toString())
+                            Log.e("Home3", response?.body()?.byteStream().toString())
+                            imgs.add(BitmapFactory.decodeStream(response?.body()?.byteStream()))
+                            Log.e("Home3", imgs.size.toString())
+
+                            if(imm == imgNames.size){
+                                //사진 가져오기
+                                val gridFragment = GridFragment(this@Home, id)
+                                supportFragmentManager
+                                    .beginTransaction()
+                                    .replace(R.id.main_content, gridFragment)
+                                    .commit()
+                                val bun = Bundle()
+                                bun.putSerializable("obj", imgs)
+                                bun.putSerializable("name", imgNames)
+                                gridFragment.arguments = bun
+
+                                Log.e("ok", "ok")
+                            }
+                        }
+                        override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                            Log.e("Home3", "fail")
+                            Log.e("Home3", t.toString())
+                        }
+                    })
+                }
+            }
+            override fun onFailure(call: Call<ArrayList<GetimgNames>>, t: Throwable) {
+                Log.e("Home2", "fail")
+                Log.e("Home2", t.toString())
+            }
+        })
 
         //프로필 가져옴
         val callProfile = retro.getClient.GetProfileImg(id)
@@ -113,19 +132,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 Log.e("Pro1", t.toString())
             }
         })
-
-        //사진 가져오기
-//        val gridFragment = GridFragment()
-//        supportFragmentManager
-//            .beginTransaction()
-//            .replace(R.id.main_content, gridFragment)
-//            .commit()
-
-//        val docRef = store!!.collection("users").document(auth!!.currentUser?.email.toString())
-//        docRef.get().addOnSuccessListener { documentSnapshot ->
-//            val city = documentSnapshot.toObject(UserDTO::class.java)
-//            homeSideMenu.setNavigationItemSelectedListener(this)
-//        }
     }
 
     //상단바
@@ -156,6 +162,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     startActivity<UpLoad>(
                         "aaa" to id
                     )
+                    finish()
                 }
                 R.id.logOut -> {
                     val save = getSharedPreferences("savesign", Activity.MODE_PRIVATE).edit()

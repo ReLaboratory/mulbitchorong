@@ -35,12 +35,12 @@ class MainActivity : AppCompatActivity() {
         iss.close()
 
         //권한 부여 확인
-        val permiCheck: Int =
+        var permiCheck: Int =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
         if (permiCheck == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET),
                 REQUEST_CODE
             )
         }
